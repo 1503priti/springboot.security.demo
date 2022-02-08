@@ -10,6 +10,7 @@ import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
+import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
 import io.gateways.userservice.domain.Role;
@@ -27,6 +28,7 @@ public class UserServiceImpl implements UserService, UserDetailsService {
 
 	private final UserRepo userRepo;
 	private final RoleRepo roleRepo;
+	private final PasswordEncoder passwordEncoder;
 
 	@Override
 	public UserDetails loadUserByUsername(String username) throws UsernameNotFoundException {
@@ -48,6 +50,7 @@ public class UserServiceImpl implements UserService, UserDetailsService {
 	@Override
 	public User saveUser(User user) {
 		log.info("Saving new user {} to the database",user.getUsername());
+		user.setPassword(passwordEncoder.encode(user.getPassword()));
 		return userRepo.save(user);
 	}
 
@@ -61,7 +64,10 @@ public class UserServiceImpl implements UserService, UserDetailsService {
 	public void addRoleToUser(String username, String roleName) {
 		log.info("Adding role {} to user {}",roleName,username);
 		User user = userRepo.findByUsername(username);
+		System.out.println("user---"+user.getRoles().toString());
 		Role role = roleRepo.findByName(roleName);
+		System.out.println("role---"+role.toString());
+		System.out.println("*************888");
 		user.getRoles().add(role);
 
 	}
